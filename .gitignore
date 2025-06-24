@@ -1,0 +1,48 @@
+# Node.js modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Dependency directories 
+.npm/
+.yarn/
+
+# Environment variables
+.env
+
+# Build output
+build/
+dist/
+
+# Temporary files
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# MacOS system files
+.DS_Store
+
+# Visual Studio Code specific
+.vscode/
+
+# IDE specific files
+.idea/
+
+# Coverage directory for testing
+coverage/
+
+# npm package lock files
+package-lock.json
+yarn.lock
+
+# Tye and docker files
+docker-compose.yml
+Dockerfile
+.tye/
+
+# MongoDB local files
+data/

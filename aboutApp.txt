@@ -1,0 +1,32 @@
+Copyrights @ Muhammad Ahmad Sultan
+
+Application Name: Journevia
+
+Application Tagline: "Roam. Chronicle. Rewind."
+
+
+Application Description: 
+
+
+Journevia: Roam. Chronicle. Rewind.
+
+Journevia is your personal travel companion to capture, relive, and share your travel adventures. Designed with wanderers in mind, it allows users to easily document and organize their travel stories by adding titles, dates, images, and locations. Whether it's a weekend getaway or an epic journey, Journevia helps you chronicle every detail in a beautiful and intuitive way.
+
+
+Key features include:
+
+
+1. User Account Management: Secure login and signup options to store your travel memories.
+
+2. Story Creation & Customization: Add titles, dates (with a calendar feature), images, and locations to create rich travel stories.
+
+3. Favorites: Mark your favorite stories and keep them displayed at the top for quick access.
+
+4. Search & Calendar View: Effortlessly search through your stories, or view them on an interactive calendar. Selecting a date or date range reveals stories from that time period. If no stories exist for the selected date, Journevia informs you with a friendly message: "No Stories found in the given date range."
+
+5. Edit and Delete: Update or remove stories whenever you want.
+
+
+Journevia makes it easy to preserve and revisit your travel memories while giving you the freedom to explore them in a way that suits your journey's pace. Whether you're seeking inspiration for your next adventure or reminiscing about a past trip, Journevia is your ultimate travel storytelling app.
+
+Let the world be your canvas.
