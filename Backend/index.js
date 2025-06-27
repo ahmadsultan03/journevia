@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const cors = require("cors");
 
-const user = require("./models/user.model");
+const User = require("./models/user.model");
 
 mongoose.connect(config.connectionString);
 
@@ -16,23 +16,23 @@ const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
-app.use(cors({origin: "*" }));
+app.use(cors({origin: "*" })); 
 
 // Create Account - SignUp
-app.get("/create-account", async (req, res) => {
+app.post("/create-account", async (req, res) => {
     const {fullName, email, password } = req.body;
 
     if (!fullName || !email || !password) {
         return res
-            .status(400)
-            .json({ error: true, message: "All fields are required."});
+        .status(400)
+        .json({ error: true, message: "All fields are required." });
     }
 
-    const isUser = await UserActivation.findOne({email});
+    const isUser = await User.findOne({email});
     if (isUser){
         return res
-            .status(400)
-            .json({ error: true, message: "User already exists."});
+        .status(400)
+        .json({ error: true, message: "User already exists."});
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
