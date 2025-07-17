@@ -6,15 +6,18 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
+const upload = require("./multer");
+const fs = require("fs");
+const path = require("path");
 
 const { authenticateToken } = require("./utilities");
 
 const User = require("./models/user.model");
+const TravelStory = require("./models/travelstory.model");
+const { error } = require("console");
 
 mongoose.connect(config.connectionString);
-
-
-const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
@@ -116,7 +119,102 @@ app.get("/get-user", authenticateToken, async (req, res) => {
 
 });
 
+// Route for handling image upload
+app.post("/image-upload", upload.single("image"), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res
+              .status(400)
+              .json({ error: true, message: "No image uploaded"});
+        }
+
+        const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+
+
+        res.status(201).json({ imageUrl });
+    } catch (error) {
+        res.status(500).json({ error: true, message: error.message });
+    }
+});
+
+// Delete an image from uploads folder
+app.delete("/delete-image", async (req,res) => {
+    const { imageUrl } = req.query;
+
+    if (!imageUrl) {
+        return res
+            .status(400)
+            .json({ error: true, message: "imageUrl parameter is required"});
+    }
+
+    try {
+        // Extract the filename from the imageUrl
+        const filename = path.basename(imageUrl);
+
+        // Define the file path
+        const filePath = path.join(__dirname, 'uploads', filename);
+
+        // Check if the filename exists
+        if (fs.existsSync(filePath)) {
+            // Delete the file from the uploads folder
+            fs.unlinkSync(filePath);
+            res.status(200).json({message: "Image deleted successfully"});
+        } else {
+            res.status(200).json({error: true, message: "Image not found"});
+        }
+    } catch (error) {
+        res.status(500).json({error: true, message: error.message});
+    }
+});
+
+// Serve static files from the uploads and assets directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/assets", express.static(path.join(__dirname, "assets")));
+
 // Add Travel Story
+app.post("/add-travel-story", authenticateToken, async (req, res) => {
+    const { title, story, visitedLocation, imageUrl, visitedDate } = req.body;
+    const { userId } = req.user
+
+    // Validating the required fields
+
+    if (!title || !story || !visitedLocation || !imageUrl || !visitedDate) {
+        return res.status(400).json({ error: true, message: "All fields are required" });
+    }
+
+    // Convert visitedDate from milliseconds to Date object
+
+    const parsedVisitedDate = new Date(parseInt(visitedDate));
+        try {
+            const travelstory = new TravelStory({
+                title,
+                story,
+                visitedLocation,
+                userId,
+                imageUrl,
+                visitedDate: parsedVisitedDate,
+            });
+
+            await travelstory.save();
+            res.status(201).json({ story: travelstory, message: 'Added Successfully'});            
+        } catch (error) {
+            res.status(400).json({ error: true, message: error.message });
+        } 
+});   
+
+// Get All Travel Stories
+app.get("/get-all-travel-stories", authenticateToken, async (req, res) => {
+    const { userId } = req.user;
+
+    try {
+        const travelstories = await TravelStory.find({ userId: userId }).sort({ isFavourite: -1 });
+        res.status(200).json({stories: travelstories});
+    } catch (error) {
+        res.status(500).json({ error: true, message: error.message });
+    }
+
+});
+
 
 
 app.listen(8000);
