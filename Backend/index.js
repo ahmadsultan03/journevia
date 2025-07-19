@@ -16,6 +16,7 @@ const { authenticateToken } = require("./utilities");
 const User = require("./models/user.model");
 const TravelStory = require("./models/travelstory.model");
 const { error } = require("console");
+const travelstoryModel = require("./models/travelstory.model");
 
 mongoose.connect(config.connectionString);
 
@@ -215,7 +216,128 @@ app.get("/get-all-travel-stories", authenticateToken, async (req, res) => {
 
 });
 
+// Edit Travel Story
+app.put("/edit-travel-story/:id", authenticateToken, async (req, res) => {
+    const {id} = req.params;
+    const {title, story, visitedLocation, imageUrl, visitedDate} = req.body;
+    const {userId} = req.user;
 
+    // Validating the required fields
+    if (!title || !story || !visitedLocation || !imageUrl || !visitedDate) {
+        return res.status(400).json({ error: true, message: "All fields are required" });
+    }
+
+    // Convert visitedDate from milliseconds to Date object
+    const parsedVisitedDate = new Date(parseInt(visitedDate));
+
+    try {
+        // Find the travel story by ID and ensure it belongs to the authenticated user
+        const travelStory = await TravelStory.findOne({_id: id, userId: userId});
+
+        if(!travelStory) {
+            return res.status(404).json({error: true, message: "Travel story not found"});
+        }
+
+        const placeholderImgUrl = `http://localhost:8000/assets/placeholder.png`;
+
+        travelStory.title = title;
+        travelStory.story = story;
+        travelStory.visitedDate = visitedLocation;
+        travelStory.imageUrl = imageUrl || placeholderImgUrl;
+        travelStory.visitedDate = parsedVisitedDate;
+
+        await travelStory.save();
+        res.status(200).json({ story:travelStory, message:'Update Successful'});
+    } catch (error) {
+        res.status(500).json({error: true, message: error.message});
+    } 
+});
+
+// Delete Travel Story
+app.delete("/delete-travel-story/:id", authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.user;
+
+    try {
+        // Find the travel story by ID and ensure it belongs to the authenticated user
+        const travelStory = await TravelStory.findOne({_id: id, userId: userId});
+
+        if(!travelStory) {
+            return res.status(404).json({error: true, message: "Travel story not found"});
+        }
+
+        // Delete travel story from the database
+        await travelStory.deleteOne({_id: id, userId: userId});
+
+        // Extract the filename from the imageUrl
+        const imageUrl = travelStory.imageUrl;
+        const filename = path.basename(imageUrl);
+
+        // Define the file path
+        const filePath = path.join(__dirname, 'uploads', filename);
+
+        // Delete the image file from the uploads folder
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error("Failed to delete image file:", err);
+                // Continue - don't treat image deletion failure as critical
+                // Optionally, you could still respond with a success status here
+            
+            }
+        });
+
+        res.status(200).json({message: "Travel story deleted successfully"});
+    } catch (error) {
+        res.status(500).json({ error: true, message: error.message});
+    }
+});
+
+// Update isFavourite
+app.put("/update-is-favourite/:id", authenticateToken, async (req, res) => {
+    const {id} = req.params;
+    const {isFavourite} = req.body;
+    const {userId} = req.user;
+
+    try {
+        const travelStory = await TravelStory.findOne({_id: id, userId: userId});
+
+    if (!travelStory) {
+        return res.status(404).json({ error: true, message: "Travel story not found"});
+    }
+
+    travelStory.isFavourite = isFavourite;
+
+    await travelStory.save();
+    res.status(200).json({ story: travelStory, message: 'Update Successful'});
+   } catch (error) {
+    res.status(500).json({error: true, message: error.message});
+   }
+});
+
+// Search Travel Stories
+app.get("/search", authenticateToken, async (req, res) => {
+    const { query } = req.query;
+    const { userId } = req.user;
+
+    if (!query) {
+        return res.status(404).json({error: true, message: "query is required"});
+    }
+
+    try {
+        const searchResults = await TravelStory.find({
+            userId: userId,
+            $or: [
+                {title: { $regex: query, $options: "i"}},
+                {story: { $regex: query, $options: "i"}},
+                { visitedLocation: { $regex: query, $options: "i"}},
+            ],
+        }).sort({ isFavourite: -1 });
+
+        res.status(200).json({stories: searchResults});
+        } catch (error) {
+            res.status(500).json({ error: true, message: error.message});
+        }
+});
 
 app.listen(8000);
 module.exports = app;
