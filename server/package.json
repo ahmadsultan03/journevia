@@ -1,0 +1,27 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Journevia - Roam. Chronicle. Rewind.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahmadsultan03/journevia.git"
+  },
+  "author": "Muhammad Ahmad Sultan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ahmadsultan03/journevia/issues"
+  },
+  "homepage": "https://github.com/ahmadsultan03/journevia#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
