@@ -50,3 +50,17 @@ export const getAllTravelStory = async (req, res, next) => {
   }
 }
 
+export const imageUpload = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return next(errorHandler(400, "Image file is required"))
+    }
+
+    const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`
+
+    res.status(201).json({ imageUrl })
+  } catch (error) {
+    next(error)
+  }
+}
+
